@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import * as React from 'react';
 
 import { TailwindIndicator } from '@/components/themes/tailwind-indicator';
 
+import { auth } from '@/auth';
 import { siteConfig } from '@/lib/site';
 import { absoluteUrl } from '@/lib/utils';
 
@@ -66,13 +68,17 @@ export const metadata: Metadata = {
   manifest: `${siteConfig.url}/site.webmanifest`,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+
   return (
-    <html lang='en'>
-      <body className={inter.className}>
-        {children}
-        <TailwindIndicator />
-      </body>
-    </html>
+    <SessionProvider session={session}>
+      <html lang='en'>
+        <body className={inter.className}>
+          {children}
+          <TailwindIndicator />
+        </body>
+      </html>
+    </SessionProvider>
   );
 }
