@@ -62,6 +62,10 @@ export const {
           updatedSession.user.role = token.role as UserRole;
         }
 
+        if (updatedSession.user) {
+          updatedSession.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+        }
+
         return updatedSession;
       } catch (error) {
         console.error('Error in session callback:', error);
@@ -77,7 +81,10 @@ export const {
         if (!existingUser) return token;
 
         // Create a new object using the spread operator and assign the role property
-        const updatedToken = { ...token, role: existingUser.role };
+        const updatedToken = { ...token, role: existingUser.role } as any;
+
+        // Assign the isTwoFactorEnabled property to the new object
+        updatedToken.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
 
         return updatedToken;
       } catch (error) {
