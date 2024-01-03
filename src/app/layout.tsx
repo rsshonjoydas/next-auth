@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import * as React from 'react';
 
 import { TailwindIndicator } from '@/components/themes/tailwind-indicator';
+import { Toaster } from '@/components/ui/sonner';
 
 import { auth } from '@/auth';
 import { siteConfig } from '@/lib/site';
@@ -75,6 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <SessionProvider session={session}>
       <html lang='en'>
         <body className={inter.className}>
+          <Toaster />
           {children}
           <TailwindIndicator />
         </body>
