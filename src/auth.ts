@@ -5,6 +5,7 @@ import NextAuth from 'next-auth';
 import authConfig from '@/auth.config';
 import { getUserById } from '@/data/user';
 import { db } from '@/lib/db';
+import { getAccountByUserId } from './data/account';
 import { getTwoFactorConfirmationByUserId } from './data/two-factor-confirmation';
 
 export const {
@@ -12,6 +13,7 @@ export const {
   auth,
   signIn,
   signOut,
+  update,
 } = NextAuth({
   pages: {
     signIn: '/auth/login',
@@ -66,6 +68,18 @@ export const {
           updatedSession.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
         }
 
+        if (session.user) {
+          return {
+            ...session,
+            user: {
+              ...session.user,
+              name: token.name,
+              email: token.email,
+              isOAuth: token.isOAuth,
+            },
+          };
+        }
+
         return updatedSession;
       } catch (error) {
         console.error('Error in session callback:', error);
@@ -80,11 +94,19 @@ export const {
 
         if (!existingUser) return token;
 
+        const existingAccount = await getAccountByUserId(existingUser.id);
+
         // Create a new object using the spread operator and assign the role property
-        const updatedToken = { ...token, role: existingUser.role } as any;
+        const updatedToken = {
+          ...token,
+          name: existingUser.name,
+          email: existingUser.email,
+          role: existingUser.role,
+        } as any;
 
         // Assign the isTwoFactorEnabled property to the new object
         updatedToken.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
+        updatedToken.isOAuth = !!existingAccount;
 
         return updatedToken;
       } catch (error) {
